@@ -1,0 +1,8 @@
+application: p
+version: 1
+runtime: python
+api_version: 1
+
+handlers:
+- url: /.*
+  wsgi_app: app:app
