@@ -33,6 +33,7 @@ def hello():
     return '''
     <!doctype html>
     <title>Upload new File</title>
+    Command line: `curl -F file=@"/tmp/1.png" http://p.dapps.douban.com/`<br>
     <form action="" method=post enctype=multipart/form-data>
       <p><input type=file name=file>
          <input type=submit value=Upload>
