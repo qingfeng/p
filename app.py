@@ -1,7 +1,9 @@
 import os
 import uuid
+import Image
+import cropresize
+
 from flask import Flask, request, redirect, url_for
-from werkzeug import secure_filename
 from dae.api import permdir
 
 UPLOAD_FOLDER = permdir.get_permdir()
@@ -18,17 +20,19 @@ def allowed_file(filename):
 def gen_filename():
     return "%s.jpg" % uuid.uuid1().hex
 
-@app.route("/i")
-def i():
-    return "Hello World!"
-
 @app.route('/', methods=['GET', 'POST'])
 def hello():
     if request.method == 'POST':
         file = request.files['file']
+        w = request.form['w']
+        h = request.form['h']
         if file and allowed_file(file.filename):
             filename = gen_filename()
-            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+            if w and h:
+                img = cropresize.crop_resize(Image.open(file), (int(w), int(h)))
+                img.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+            else:
+                file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
             return "http://p.dapps.douban.com/i/%s" % filename
     return '''
     <!doctype html>
@@ -36,6 +40,8 @@ def hello():
     Command line: `curl -F file=@"/tmp/1.png" http://p.dapps.douban.com/`<br>
     <form action="" method=post enctype=multipart/form-data>
       <p><input type=file name=file>
+         w:<input type=text name=w>
+         h:<input type=text name=h>
          <input type=submit value=Upload>
     </form>
     '''
