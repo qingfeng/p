@@ -4,5 +4,9 @@ runtime: python
 api_version: 1
 
 handlers:
+- url: /i/(.*)
+  static_files: permdir/\1
+  upload: permdir/.*
+
 - url: /.*
   wsgi_app: app:app

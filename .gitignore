@@ -1,4 +1,5 @@
-venv
-permdir
-dev.yaml
-syncdb_dumps.bak
+/venv
+/permdir
+/dev.yaml
+/syncdb_dumps.bak
+*.pyc
