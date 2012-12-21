@@ -3,7 +3,7 @@ import uuid
 import Image
 import cropresize
 
-from flask import Flask, request, redirect, url_for
+from flask import Flask, request, redirect, url_for, abort
 from dae.api import permdir
 
 UPLOAD_FOLDER = permdir.get_permdir()
@@ -37,6 +37,7 @@ def hello():
             else:
                 file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
             return "http://p.dapps.douban.com/i/%s" % filename
+        abort(400)
     return '''
     <!doctype html>
     <title>Upload new File</title>
