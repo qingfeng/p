@@ -18,9 +18,7 @@ def allowed_file(filename):
            filename.rsplit('.', 1)[1] in ALLOWED_EXTENSIONS
 
 def gen_filename(suffix):
-    if suffix:
-        suffix = '.' + suffix
-    return "%s%s" % (uuid.uuid1().hex, suffix)
+    return "%s.%s" % (uuid.uuid1().hex, suffix)
 
 @app.route('/', methods=['GET', 'POST'])
 def hello():
