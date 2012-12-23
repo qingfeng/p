@@ -6,6 +6,7 @@ import cropresize
 from flask import Flask, request, redirect, url_for, abort
 from dae.api import permdir
 
+DOMAIN = "http://p.dapps.douban.com"
 UPLOAD_FOLDER = permdir.get_permdir()
 ALLOWED_EXTENSIONS = set(['txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'])
 
@@ -19,6 +20,19 @@ def allowed_file(filename):
 
 def gen_filename(suffix):
     return "%s.%s" % (uuid.uuid1().hex, suffix)
+
+@app.route('/r/<img_hash>')
+def rsize(img_hash):
+    w = request.args.get('w')
+    h = request.args.get('h')
+    if w and h:
+        file = "%s/%s" % (app.config['UPLOAD_FOLDER'], img_hash)
+        original_suffix = img_hash.rpartition('.')[-1]
+        filename = gen_filename(original_suffix)
+        img = cropresize.crop_resize(Image.open(file), (int(w), int(h)))
+        img.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+        return "%s/i/%s" % (DOMAIN, filename)
+    return about(400)
 
 @app.route('/', methods=['GET', 'POST'])
 def hello():
@@ -34,8 +48,8 @@ def hello():
                 img.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
             else:
                 file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-            return "http://p.dapps.douban.com/i/%s" % filename
-        abort(400)
+            return "%s/i/%s" % (DOMAIN, filename)
+        return abort(400)
     return '''
     <!doctype html>
     <title>Upload new File</title>
