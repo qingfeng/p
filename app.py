@@ -27,7 +27,7 @@ def hello():
         w = request.form['w']
         h = request.form['h']
         if file and allowed_file(file.filename):
-            original_suffix = file.filename.rpartition('.')[0]
+            original_suffix = file.filename.rpartition('.')[-1]
             filename = gen_filename(original_suffix)
             if w and h:
                 img = cropresize.crop_resize(Image.open(file), (int(w), int(h)))
