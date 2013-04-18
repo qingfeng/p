@@ -17,6 +17,7 @@ app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
 app.config['MAKO_PREPROCESSOR'] = preprocessor
+app.debug = True
 mako = MakoTemplates(app)
 
 
@@ -44,8 +45,8 @@ def rsize(img_hash):
 def hello():
     if request.method == 'POST':
         file = request.files['file']
-        w = request.form['w']
-        h = request.form['h']
+        w = request.form.get('w')
+        h = request.form.get('h')
         if file and allowed_file(file.filename):
             original_suffix = file.filename.rpartition('.')[-1]
             filename = gen_filename(original_suffix)
@@ -57,6 +58,3 @@ def hello():
             return "%s/i/%s" % (DOMAIN, filename)
         return abort(400)
     return render_template('index.html', **locals())
-
-if __name__ == "__main__":
-    app.run()
