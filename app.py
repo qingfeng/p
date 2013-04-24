@@ -17,6 +17,7 @@ app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
 app.config['MAKO_PREPROCESSOR'] = preprocessor
+app.config['MAKO_TRANSLATE_EXCEPTIONS'] = False
 app.debug = True
 mako = MakoTemplates(app)
 
@@ -55,6 +56,11 @@ def hello():
                 img.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
             else:
                 file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-            return "%s/i/%s" % (DOMAIN, filename)
+            return "%s/p/%s" % (DOMAIN, filename)
         return abort(400)
     return render_template('index.html', **locals())
+
+@app.route('/p/<filename>')
+def p(filename):
+    domain = DOMAIN
+    return render_template('success.html', **locals())
