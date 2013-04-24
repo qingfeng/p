@@ -84,6 +84,7 @@ function readfiles(files) {
 if (tests.dnd) { 
   holder.ondragover = function () { this.className = 'hover'; return false; };
   holder.ondragend = function () { this.className = ''; return false; };
+  holder.ondragleave = function () { this.className = ''; return false; };
   holder.ondrop = function (e) {
     this.className = '';
     e.preventDefault();

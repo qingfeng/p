@@ -1,6 +1,11 @@
 doctype html
 head
   title upload success
+  link rel="stylesheet" href="/static/css/custom.css"
 
 body
-  div ${domain}/i/${filename}
+  div class="hd"
+    a href="/" &#9729;
+    input value="${domain}/i/${filename}" onmouseover="this.focus()"
+  div class="bd"
+    img src="${domain}/i/${filename}"

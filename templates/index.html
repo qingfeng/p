@@ -3,27 +3,19 @@ head
   title upload photo service
 
   script src="/static/js/h5utils.js"
-  link rel="stylesheet" href="/static/css/html5demo.css"
-
-  style
-    #holder { border: 10px dashed #ccc; width: 300px; min-height: 300px; margin: 20px auto;}
-    #holder.hover { border: 10px dashed #0c0; }
-    #holder img { display: block; margin: 10px auto; }
-    #holder p { margin: 10px; font-size: 14px; }
-    progress { width: 100%; }
-    progress:after { content: '%'; }
-    .fail { background: #c00; padding: 2px; color: #fff; }
-    .hidden { display: none !important;}
+  link rel="stylesheet" href="/static/css/custom.css"
 
 body
-  article
-    div id="holder"
-    p id="upload" class="hidden"
-    p id="filereader"
-    p id="formdata"
-    p id="progress"
-    p
-      progress id="uploadprogress" min="0" max="100" value="0" 0
+  div class="hd"
+    a href="/" &#9729;
+  div id="holder"
+  h1 拖拽图片文件到页面开始上传
+  p id="upload" class="hidden"
+  p id="filereader"
+  p id="formdata"
+  p id="progress"
+  p
+    progress id="uploadprogress" min="0" max="100" value="0" 0
 
   script src="/static/js/upload.js"
 
