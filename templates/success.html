@@ -5,7 +5,9 @@ head
 
 body
   div class="hd"
-    a href="/" &#9729;
+    a href="/" title="p.dapps.douban.com" P
     input value="${domain}/p/${filename}" onmouseover="this.focus()"
   div class="bd"
-    img src="${domain}/i/${filename}"
+    img src="${domain}/i/${filename}" id="image" class="small"
+  script
+    document.getElementById("image").onclick=function(){var a=""+image.className+"";~a.indexOf("auto")?this.className=a.replace("auto",""):this.className+="auto"};
