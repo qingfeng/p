@@ -4,6 +4,7 @@ body {
   padding: 0;
   text-align: center;
   color: #666;
+  background: #f7f7f7;
 }
 
 a{ color: #444; text-decoration: none;}
@@ -26,7 +27,7 @@ progress:after { content: '%'; }
 .fail { background: #c00; padding: 2px; color: #fff; }
 .hidden { display: none !important;}
 
-.hd{background: #f2f2f2;margin-bottom: 40px;}
+.hd{margin-bottom: 40px;}
 .hd label{padding: 20px 0;display: block;}
 .hd input{width: 600px;font-size: 16px;border: none;background: #f2f2f2;color: #999; padding: 10px 20px;}
 .hd input:focus{color: #333;outline: none;}
