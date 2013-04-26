@@ -45,3 +45,5 @@ max-width: 90%;
 .bd img.auto{
 max-width: auto !important;
 }
+
+.normal{margin-top: 200px;}
