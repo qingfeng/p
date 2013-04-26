@@ -11,7 +11,7 @@ from dae.api import permdir
 
 DOMAIN = "http://p.dapps.douban.com"
 UPLOAD_FOLDER = permdir.get_permdir()
-ALLOWED_EXTENSIONS = set(['txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'])
+ALLOWED_EXTENSIONS = set(['txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif', 'mp4', 'mp3', 'psd'])
 
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
