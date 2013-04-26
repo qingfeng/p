@@ -3,11 +3,15 @@ body {
   margin: 0;
   padding: 0;
   text-align: center;
-  color: #666;
+  color: #444;
+  background: #f7f7f7;
+  height: 100%;
 }
 
-a{ color: #444; text-decoration: none;}
-a:hover,a:focus{ color:#000; }
+iframe{border: none;margin: 0;width: 100%; height: 100%;margin-bottom: -4px}
+
+a{ color: #63B6AE; text-decoration: none;}
+a:hover,a:focus{ text-decoration: underline; }
 a:active,a.active{ color: #666; }
 a, a:link, a:hover, a:active {
 	-webkit-transition: all .2s ease-out;
@@ -21,24 +25,19 @@ a, a:link, a:hover, a:active {
 #holder { display: block;position: absolute;top:0;left: 0;right: 0;bottom: 0;z-index: -1;}
 #holder.hover { z-index:1;background: rgba(0,0,0,0.5); }
 #holder img { display: block; margin: 180px auto 0; }
-#holder p { margin: 10px; font-size: 14px; }
+#holder p { margin-top: 160px; font-size: 14px; }
 progress:after { content: '%'; }
 .fail { background: #c00; padding: 2px; color: #fff; }
 .hidden { display: none !important;}
 
-.hd{position: fixed;width: 100%;background: rgba(255,255,255,0.9);top:0;height: 44px;}
+.hd{position: fixed;width: 100%;background: rgba(255,255,255,0.8);top:0;height: 44px;}
 .hd label{padding: 20px 0;display: block;}
-.hd input{width: 600px;font-size: 16px;border: none;background:none;color: #999; padding: 10px;}
+.hd input{width: 560px;font-size: 16px;border: none;background:none;padding: 10px;}
 .hd input:focus{color: #333;outline: none;}
 .hd a{font-size: 24px; display: inline-block;background: #63b6ae;color: #fff; padding: 12px 16px;}
 
 h1{font-weight: 400; font-size: 18px; margin-top: 80px;}
 .bd{margin-top: 44px;}
-.bd img{
--webkit-box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
--moz-box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
 .bd img.small{
 max-width: 90%;
 }
@@ -46,4 +45,6 @@ max-width: 90%;
 max-width: auto !important;
 }
 
-.normal{margin-top: 200px;}
+.normal{margin-top: 100px;}
+.fileicon{display:block;width: 60px; height: 60px; line-height: 60px; margin: 100px auto 20px;background: #e2e2e2; border: 3px solid #d2d2d2; color: #999; font-size: 20px;}
+.fileicon.psd{border-color:#9dd0fd; background: #2b2f71; color: #95ccfb;}
