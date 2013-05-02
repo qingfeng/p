@@ -40,7 +40,25 @@ def rsize(img_hash):
         img = cropresize.crop_resize(Image.open(file), (int(w), int(h)))
         img.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
         return "%s/i/%s" % (DOMAIN, filename)
-    return about(400)
+    return abort(400)
+
+@app.route('/a/<img_hash>')
+def affine(img_hash):
+    w = request.args.get('w')
+    h = request.args.get('h')
+
+    a = request.args.get('a')
+    a = map(float, a.split(','))
+
+    if w and h and a and len(a) == 6:
+        size = (int(w), int(h))
+        file = "%s/%s" % (app.config['UPLOAD_FOLDER'], img_hash)
+        original_suffix = img_hash.rpartition('.')[-1]
+        filename = gen_filename(original_suffix)
+        img = Image.open(file).transform(size, Image.AFFINE, a, Image.BILINEAR)
+        img.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+        return "%s/i/%s" % (DOMAIN, filename)
+    return abort(400)
 
 @app.route('/', methods=['GET', 'POST'])
 def hello():
