@@ -11,14 +11,14 @@ body
     input value="${domain}/i/${filename}" onmouseover="this.focus()"
   -if is_image(filename)
     div class="bd"
-      img src="${domain}/i/${filename}" id="image" class="small"
+      img src="/i/${filename}" id="image" class="small"
   -elif is_pdf(filename)
-    iframe src="${domain}/i/${filename}"
+    iframe src="/i/${filename}"
   -elif is_psd(filename)
-    a href="${domain}/i/${filename}" class="fileicon psd" psd
-    a href="${domain}/i/${filename}" ${filename}
+    a href="/i/${filename}" class="fileicon psd" psd
+    a href="/i/${filename}" ${filename}
   -else
-    a href="${domain}/i/${filename}" class="fileicon" file
-    a href="${domain}/i/${filename}" ${filename}
+    a href="/i/${filename}" class="fileicon" file
+    a href="/i/${filename}" ${filename}
   script
     document.getElementById("image").onclick=function(){var a=""+image.className+"";~a.indexOf("auto")?this.className=a.replace("auto",""):this.className+="auto"};
