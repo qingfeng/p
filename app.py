@@ -74,7 +74,7 @@ def hello():
                 img.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
             else:
                 file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-            return "/p/%s" % filename
+            return "%s/i/%s" % (DOMAIN, filename)
         return abort(400)
     return render_template('index.html', **locals())
 
