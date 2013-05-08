@@ -3,7 +3,7 @@ import uuid
 import Image
 import cropresize
 
-from flask import Flask, request, redirect, url_for, abort
+from flask import Flask, request, redirect, url_for, abort, jsonify
 from flask.ext.mako import MakoTemplates
 from flask.ext.mako import render_template
 from plim import preprocessor
@@ -77,6 +77,22 @@ def hello():
             return "%s/i/%s" % (DOMAIN, filename)
         return abort(400)
     return render_template('index.html', **locals())
+
+@app.after_request
+def after_request(response):
+    response.headers["Access-Control-Allow-Origin"] = "*"
+    response.headers["Access-Control-Allow-Headers"] = "Content-Type"
+    return response
+
+@app.route('/j', methods=['GET', 'POST'])
+def j():
+    file = request.files['file']
+    if file and allowed_file(file.filename):
+        original_suffix = file.filename.rpartition('.')[-1]
+        filename = gen_filename(original_suffix)
+        file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+        return jsonify({'url':"%s/i/%s" % (DOMAIN, filename)})
+    return abort(400)
 
 @app.route('/p/<filename>')
 def p(filename):
