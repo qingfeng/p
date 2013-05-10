@@ -74,9 +74,25 @@ def hello():
                 img.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
             else:
                 file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-            return "%s/i/%s" % (DOMAIN, filename)
+            return "/p/%s" % filename
         return abort(400)
     return render_template('index.html', **locals())
+
+@app.route('/t', methods=['POST'])
+def terminal():
+    file = request.files['file']
+    w = request.form.get('w')
+    h = request.form.get('h')
+    if file and allowed_file(file.filename):
+        original_suffix = file.filename.rpartition('.')[-1]
+        filename = gen_filename(original_suffix)
+        if w and h:
+            img = cropresize.crop_resize(Image.open(file), (int(w), int(h)))
+            img.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+        else:
+            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+        return "%s/i/%s" % (DOMAIN, filename)
+    return 'error upload'
 
 @app.after_request
 def after_request(response):
