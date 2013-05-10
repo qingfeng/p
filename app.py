@@ -21,6 +21,7 @@ app.config['MAKO_TRANSLATE_EXCEPTIONS'] = False
 app.debug = True
 mako = MakoTemplates(app)
 
+command_agent_keys = ['curl', 'wget']
 
 def allowed_file(filename):
     return '.' in filename and \
@@ -28,6 +29,15 @@ def allowed_file(filename):
 
 def gen_filename(suffix):
     return "%s.%s" % (uuid.uuid1().hex, suffix)
+
+def is_command_line_request(request):
+    agent = str(request.user_agent).lower()
+    if not agent:
+        return True
+    for k in command_agent_keys:
+        if k in agent:
+            return True
+    return False
 
 @app.route('/r/<img_hash>')
 def rsize(img_hash):
@@ -74,7 +84,9 @@ def hello():
                 img.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
             else:
                 file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-            return "%s/i/%s" % (DOMAIN, filename)
+            if is_command_line_request(request):
+                return "%s/i/%s" % (DOMAIN, filename)
+            return "/p/%s" % filename
         return abort(400)
     return render_template('index.html', **locals())
 
