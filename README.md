@@ -11,3 +11,7 @@ Example:
  * Affine Transformation:
      ``http://p.dapps.douban.com/a/img_hash.jpg?w=300&h=300&a=0.86,0.5,-100,-0.5,0.86,50``
      (Rotate 30 degree clockwise and then translation 100 right, 50 up.)
+
+Mac Desktop
+====
+Thanks @zhuchongyu [Download](http://d.dapps.douban.com/_upload/DoubanP.zip)
