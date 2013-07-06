@@ -9,6 +9,7 @@ body
   div class="hd"
     a href="/" title="p.dapps.douban.com" P
     input value="${domain}/i/${filename}" onmouseover="this.focus()"
+  input class="surl" value="${domain}/s/${symlink}" onmouseover="this.focus()"
   -if is_image(filename)
     div class="bd"
       img src="/i/${filename}" id="image" class="small"

@@ -36,8 +36,10 @@ progress:after { content: '%'; }
 .hd input:focus{color: #333;outline: none;}
 .hd a{font-size: 24px; display: inline-block;background: #63b6ae;color: #fff; padding: 12px 16px;}
 
+.surl{position:fixed;bottom:5px;left:5px;width:300px;background:transparent;outline:none;font-size:14px;border:none;padding:5px;}
+
 h1{font-weight: 400; font-size: 18px; margin-top: 80px;}
-.bd{margin-top: 44px;}
+.bd{margin: 44px 0;}
 .bd img.small{
 max-width: 90%;
 }

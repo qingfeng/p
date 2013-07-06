@@ -8,10 +8,13 @@ from flask.ext.mako import MakoTemplates
 from flask.ext.mako import render_template
 from plim import preprocessor
 from dae.api import permdir
+from random import choice
+from string import ascii_uppercase, ascii_lowercase, digits
 
 DOMAIN = "http://p.dapps.douban.com"
 UPLOAD_FOLDER = permdir.get_permdir()
 ALLOWED_EXTENSIONS = set(['txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif', 'mp4', 'mp3', 'psd'])
+RANDOM_SEQ = ascii_uppercase + ascii_lowercase + digits
 
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
@@ -29,6 +32,24 @@ def allowed_file(filename):
 
 def gen_filename(suffix):
     return "%s.%s" % (uuid.uuid1().hex, suffix)
+
+def gen_symlink(filename):
+    filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+    while True:
+        linkname = ''.join(choice(RANDOM_SEQ) for x in range(6))
+        linkpath = os.path.join(app.config['UPLOAD_FOLDER'], linkname)
+        if not os.path.exists(linkpath):
+            break
+    os.symlink(filepath, linkpath)
+
+    with open(os.path.join(app.config['UPLOAD_FOLDER'], filename.replace('.', '_')), 'w+') as fp:
+        fp.write(linkname)
+
+    return linkname
+
+def save_file(file, filename):
+    file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+    return gen_symlink(filename)
 
 def is_command_line_request(request):
     agent = str(request.user_agent).lower()
@@ -48,7 +69,7 @@ def rsize(img_hash):
         original_suffix = img_hash.rpartition('.')[-1]
         filename = gen_filename(original_suffix)
         img = cropresize.crop_resize(Image.open(file), (int(w), int(h)))
-        img.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+        save_file(img, filename)
         return "%s/i/%s" % (DOMAIN, filename)
     return abort(400)
 
@@ -66,7 +87,7 @@ def affine(img_hash):
         original_suffix = img_hash.rpartition('.')[-1]
         filename = gen_filename(original_suffix)
         img = Image.open(file).transform(size, Image.AFFINE, a, Image.BILINEAR)
-        img.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+        save_file(img, filename)
         return "%s/i/%s" % (DOMAIN, filename)
     return abort(400)
 
@@ -81,9 +102,9 @@ def hello():
             filename = gen_filename(original_suffix)
             if w and h:
                 img = cropresize.crop_resize(Image.open(file), (int(w), int(h)))
-                img.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+                save_file(img, filename)
             else:
-                file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+                save_file(file, filename)
             if is_command_line_request(request):
                 return "%s/i/%s" % (DOMAIN, filename)
             return "/p/%s" % filename
@@ -102,11 +123,27 @@ def j():
     if file and allowed_file(file.filename):
         original_suffix = file.filename.rpartition('.')[-1]
         filename = gen_filename(original_suffix)
-        file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-        return jsonify({'url':"%s/i/%s" % (DOMAIN, filename)})
+        symlink = save_file(file, filename)
+        return jsonify({'url':"%s/i/%s" % (DOMAIN, filename), 'short_url':"%s/s/%s" % (DOMAIN, symlink)})
     return abort(400)
 
 @app.route('/p/<filename>')
 def p(filename):
+    if not os.path.exists(os.path.join(app.config['UPLOAD_FOLDER'], filename)):
+        return abort(404)
+
     domain = DOMAIN
+    linkfile = os.path.join(app.config['UPLOAD_FOLDER'], filename.replace('.', '_'))
+    if os.path.exists(linkfile):
+        with open(linkfile) as fp:
+            symlink = fp.read()
+    else:
+        symlink = gen_symlink(filename)
     return render_template('success.html', **locals())
+
+@app.route('/s/<symlink>')
+def s(symlink):
+    path = os.path.realpath(os.path.join(app.config['UPLOAD_FOLDER'], symlink))
+    if not os.path.exists(path):
+        return abort(404)
+    return redirect("/p/%s" % path.split('/')[-1])
