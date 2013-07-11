@@ -1,6 +1,6 @@
 doctype html
 head
-  title P - 内网图片分享工具
+  title P - 内网文件分享工具
 
   script src="/static/js/h5utils.js"
   link rel="stylesheet" href="/static/css/custom.css"
@@ -9,13 +9,28 @@ body
   div class="hd"
     a href="/" title="p.dapps.douban.com" P
   div id="holder"
-  h1 拖拽图片文件到页面开始上传
+  h1 拖拽文件到页面开始上传
   p
     progress id="uploadprogress" min="0" max="100" value="0" 0
   p id="upload" class="hidden"
   p id="filereader"
   p id="formdata"
   p id="progress"
+
+  div id="exts"
+    h3 支持的文件类型
+    dl
+      dt 图片
+      dd png, jpg, jpeg, gif
+      dt 文档
+      dd doc, docx, ppt, pptx, xls, xlsx
+      dd pages, keynote, numbers
+      dt 媒体
+      dd mp4, mp3
+      dt 其他
+      dd txt, pdf, psd
+
+
 
   script src="/static/js/upload.js"
 
