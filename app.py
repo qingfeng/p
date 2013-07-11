@@ -13,7 +13,18 @@ from string import ascii_uppercase, ascii_lowercase, digits
 
 DOMAIN = "http://p.dapps.douban.com"
 UPLOAD_FOLDER = permdir.get_permdir()
-ALLOWED_EXTENSIONS = set(['txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif', 'mp4', 'mp3', 'psd'])
+ALLOWED_EXTENSIONS = set([
+
+'png', 'jpg', 'jpeg', 'gif', 
+
+'mp4', 'mp3', 
+
+'doc','docx','ppt','pptx','xls','xlsx',
+'pages', 'keynote', 'numbers',
+
+'txt', 'pdf', 'psd',
+
+])
 RANDOM_SEQ = ascii_uppercase + ascii_lowercase + digits
 
 app = Flask(__name__)
@@ -124,7 +135,11 @@ def j():
         original_suffix = file.filename.rpartition('.')[-1]
         filename = gen_filename(original_suffix)
         symlink = save_file(file, filename)
-        return jsonify({'url':"%s/i/%s" % (DOMAIN, filename), 'short_url':"%s/s/%s" % (DOMAIN, symlink)})
+        return jsonify({
+            'url':"%s/i/%s" % (DOMAIN, filename),
+            'short_url':"%s/s/%s" % (DOMAIN, symlink),
+            'origin_filename': file.filename,
+            })
     return abort(400)
 
 @app.route('/p/<filename>')

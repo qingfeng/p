@@ -22,10 +22,10 @@ a, a:link, a:hover, a:active {
 	-webkit-backface-visibility: hidden;
 }
 
-#holder { display: block;position: absolute;top:0;left: 0;right: 0;bottom: 0;z-index: -1;}
+#holder { display: block;position: absolute;top:0;left: 0;right: 0;bottom: 0;z-index: 999;}
 #holder.hover { z-index:1;background: rgba(0,0,0,0.5); }
 #holder img { display: block; margin: 180px auto 0; }
-#holder p { margin-top: 160px; font-size: 14px; }
+#holder p {position:fixed;left:0;right:0;bottom:0;color:#CF8214;font-size:14px;}
 progress:after { content: '%'; }
 .fail { background: #c00; padding: 2px; color: #fff; }
 .hidden { display: none !important;}
@@ -50,3 +50,18 @@ max-width: auto !important;
 .normal{margin-top: 100px;}
 .fileicon{display:block;width: 60px; height: 60px; line-height: 60px; margin: 100px auto 20px;background: #e2e2e2; border: 3px solid #d2d2d2; color: #999; font-size: 20px;}
 .fileicon.psd{border-color:#9dd0fd; background: #2b2f71; color: #95ccfb;}
+
+#exts{
+    color:#666;
+    font-size:small;
+    margin-top:4em;
+    border-top:solid 1px #eee;
+}
+
+#exts dd{
+    margin:0;
+    padding:0;
+}
+#exts dt{
+    color:#66f;
+}

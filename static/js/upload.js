@@ -42,7 +42,7 @@ function previewfile(file) {
 
     reader.readAsDataURL(file);
   }  else {
-    holder.innerHTML += '<p>Uploaded ' + file.name + ' ' + (file.size ? (file.size/1024|0) + 'K' : '');
+    holder.innerHTML = '<p>Uploaded ' + file.name + ' ' + (file.size ? (file.size/1024|0) + 'K' : '');
     console.log(file);
   }
 }
@@ -59,12 +59,16 @@ function readfiles(files) {
     if (tests.formdata) {
       var xhr = new XMLHttpRequest();
       xhr.open('POST', '/');
-      xhr.onload = function() {
-        progress.value = progress.innerHTML = 100;
-      };
       xhr.onreadystatechange = function() {
-        if (xhr.readyState==4 && xhr.status==200){
-          window.location.href = xhr.responseText;
+        if (xhr.readyState==4){
+            if(xhr.status==200){
+                window.location.href = xhr.responseText;
+                progress.value = progress.innerHTML = 100;
+            }
+            else{
+                alert("上传失败，请确认上传的文件类型合法" );
+                progress.value = progress.innerHTML = 0;
+            }
         }
       };
 
