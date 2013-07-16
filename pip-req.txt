@@ -1,17 +1,20 @@
 CoffeeScript==1.0.5
 Flask==0.9
 -e git+http://code.dapps.douban.com/flask-mako.git@db54dd5cc487ad057a42d15b7d641b2493fb329f#egg=Flask_Mako
+Flask-SQLAlchemy==0.16
 Jinja2==2.6
 Mako==0.8.0
 MarkupSafe==0.15
 PIL==1.1.7
 Plim==0.7.12
 PyExecJS==1.0.4
+SQLAlchemy==0.8.2
 Werkzeug==0.8.3
 cropresize==0.1.6
-distribute==0.6.24
+distribute==0.6.28
 docutils==0.10
 markdown2==2.1.0
 pyScss==1.1.5
+python-magic==0.4.3
 stylus==0.1.0
 wsgiref==0.1.2

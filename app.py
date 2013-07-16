@@ -1,66 +1,154 @@
+# -*- coding: utf-8 -*-
+
 import os
 import uuid
+import magic
 import Image
 import cropresize
+from random import choice
+from string import digits
+from string import ascii_uppercase
+from string import ascii_lowercase
+from datetime import datetime
 
-from flask import Flask, request, redirect, url_for, abort, jsonify
+from flask import abort
+from flask import Flask
+from flask import request
+from flask import jsonify
+from flask import redirect
 from flask.ext.mako import MakoTemplates
 from flask.ext.mako import render_template
-from plim import preprocessor
-from dae.api import permdir
-from random import choice
-from string import ascii_uppercase, ascii_lowercase, digits
+from flask.ext.sqlalchemy import SQLAlchemy
 
 DOMAIN = "http://p.dapps.douban.com"
-UPLOAD_FOLDER = permdir.get_permdir()
-ALLOWED_EXTENSIONS = set([
-
-'png', 'jpg', 'jpeg', 'gif', 
-
-'mp4', 'mp3', 
-
-'doc','docx','ppt','pptx','xls','xlsx',
-'pages', 'keynote', 'numbers',
-
-'txt', 'pdf', 'psd',
-
-])
 RANDOM_SEQ = ascii_uppercase + ascii_lowercase + digits
 
 app = Flask(__name__)
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
-app.config['MAKO_PREPROCESSOR'] = preprocessor
-app.config['MAKO_TRANSLATE_EXCEPTIONS'] = False
-app.debug = True
+app.config.from_object("config")
 mako = MakoTemplates(app)
+db = SQLAlchemy(app)
 
 command_agent_keys = ['curl', 'wget']
 
-def allowed_file(filename):
-    return '.' in filename and \
-           filename.rsplit('.', 1)[1] in ALLOWED_EXTENSIONS
+class PasteFile(db.Model):
+    __tablename__ = "PasteFile"
+    id            = db.Column(db.Integer, primary_key = True)
+    filename      = db.Column(db.String(5000), nullable = False)
+    filehash      = db.Column(db.String(128), nullable = False, unique = True)
+    uploadTime    = db.Column(db.DateTime, nullable = False)
+    mimetype      = db.Column(db.String(256), nullable = False)
+    symlink       = db.Column(db.String(50, collation = 'utf8_bin'), nullable = False, unique = True) # collation is for case-sensitive select
+    size          = db.Column(db.Integer, nullable = False)
 
-def gen_filename(suffix):
-    return "%s.%s" % (uuid.uuid1().hex, suffix)
+    def __init__(self, filename = "", mimetype = "application/octet-stream", size = 0, filehash = None, symlink = None):
+        self.uploadTime = datetime.now()
+        self.mimetype   = mimetype
+        self.size       = int(size)
 
-def gen_symlink(filename):
-    filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-    while True:
-        linkname = ''.join(choice(RANDOM_SEQ) for x in range(6))
-        linkpath = os.path.join(app.config['UPLOAD_FOLDER'], linkname)
-        if not os.path.exists(linkpath):
-            break
-    os.symlink(filepath, linkpath)
+        if filehash:
+            self.filehash = filehash
+        else:
+            self.filehash = self._hash_filename(filename)
 
-    with open(os.path.join(app.config['UPLOAD_FOLDER'], filename.replace('.', '_')), 'w+') as fp:
-        fp.write(linkname)
+        if filename:
+            self.filename = filename
+        else:
+            self.filename = self.filehash
 
-    return linkname
+        if symlink:
+            self.symlink  = symlink
+        else:
+            self.symlink  = self._gen_symlink()
 
-def save_file(file, filename):
-    file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-    return gen_symlink(filename)
+    @staticmethod
+    def _hash_filename(filename):
+        _, _, suffix = filename.rpartition('.')
+        return "%s.%s" % (uuid.uuid1().hex, suffix)
+
+    @staticmethod
+    def _gen_symlink():
+        return "".join(choice(RANDOM_SEQ) for x in range(6))
+
+    @classmethod
+    def get_by_filehash(cls, filehash):
+        return cls.query.filter_by(filehash = filehash).first()
+
+    @classmethod
+    def get_by_symlink(cls, symlink):
+        return cls.query.filter_by(symlink = symlink).first()
+
+    @classmethod
+    def create_by_uploadFile(cls, uploadedFile):
+        rst      = cls(uploadedFile.filename, uploadedFile.mimetype, 0) # emmm. I'll fill this value later.
+        uploadedFile.save(rst.path)
+        filestat = os.stat(rst.path)
+        rst.size = filestat.st_size
+        return rst
+
+    @classmethod
+    def create_file_after_crop(cls, uploadedFile, width, height):
+        assert uploadedFile.mimetype in SUPPORT_IMAGE_MIME, TypeError("Unsupported Image Type.")
+
+        img      = cropresize.crop_resize(Image.open(uploadedFile), (int(width), int(height)))
+        rst      = cls(uploadedFile.filename, uploadedFile.mimetype, 0)
+        img.save(rst.path)
+
+        filestat = os.stat(rst.path) 
+        rst.size = filestat.st_size
+
+        return rst
+
+    @classmethod
+    def create_by_old_paste(cls, filehash, symlink):
+        filepath = os.path.join(app.config["UPLOAD_FOLDER"], filehash)
+        mimetype = magic.from_file(filepath, mime = True)
+        filestat = os.stat(filepath)
+        size     = filestat.st_size
+
+        rst = cls(filehash, mimetype, size, filehash = filehash, symlink = symlink)
+        return rst
+
+    @property
+    def path(self):
+        return os.path.join(app.config["UPLOAD_FOLDER"], self.filehash)
+
+    @property
+    def url_i(self):
+        return "http://{host}/i/{filehash}".format(host = request.host, filehash = self.filehash)
+
+    @property
+    def url_p(self):
+        return "http://{host}/p/{filehash}".format(host = request.host, filehash = self.filehash)
+
+    @property
+    def url_s(self):
+        return "http://{host}/s/{symlink}".format(host = request.host, symlink = self.symlink)
+
+    @classmethod
+    def create_by_img(cls, img, filename, mimetype):
+        rst      = cls(filename, mimetype, 0)
+        img.save(rst.path)
+        filestat = os.stat(rst.path)
+        rst.size = filestat.st_size
+        return rst
+
+    @classmethod
+    def rsize(cls, oldPaste, weight, height):
+        assert oldPaste.is_image
+
+        img = cropresize.crop_resize(Image.open(oldPaste.path), (int(weight), int(height)))
+
+        return cls.create_by_img(img, oldPaste.filename, oldPaste.mimetype)
+
+    @classmethod
+    def affine(cls, oldPaste, w, h, a):
+        assert oldPaste.is_image
+
+        img_size = (int(w), int(h))
+        img = Image.open(oldPaste.path).transform(img_size, Image.AFFINE, a, Image.BILINEAR)
+
+        return cls.create_by_img(img, oldPaste.filename, oldPaste.mimetype)
+
 
 def is_command_line_request(request):
     agent = str(request.user_agent).lower()
@@ -73,53 +161,65 @@ def is_command_line_request(request):
 
 @app.route('/r/<img_hash>')
 def rsize(img_hash):
-    w = request.args.get('w')
-    h = request.args.get('h')
-    if w and h:
-        file = "%s/%s" % (app.config['UPLOAD_FOLDER'], img_hash)
-        original_suffix = img_hash.rpartition('.')[-1]
-        filename = gen_filename(original_suffix)
-        img = cropresize.crop_resize(Image.open(file), (int(w), int(h)))
-        save_file(img, filename)
-        return "%s/i/%s" % (DOMAIN, filename)
-    return abort(400)
+    # TODO: rewrite
+    w = request.args['w']
+    h = request.args['h']
+
+    oldPaste = PasteFile.get_by_filehash(img_hash)
+
+    if not oldPaste:
+        return abort(404)
+
+    newPaste = PasteFile.rsize(oldPaste, w, h)
+
+    return newPaste.url_i
 
 @app.route('/a/<img_hash>')
 def affine(img_hash):
-    w = request.args.get('w')
-    h = request.args.get('h')
+    w = request.args['w']
+    h = request.args['h']
 
-    a = request.args.get('a')
+    a = request.args['a']
     a = map(float, a.split(','))
 
-    if w and h and a and len(a) == 6:
-        size = (int(w), int(h))
-        file = "%s/%s" % (app.config['UPLOAD_FOLDER'], img_hash)
-        original_suffix = img_hash.rpartition('.')[-1]
-        filename = gen_filename(original_suffix)
-        img = Image.open(file).transform(size, Image.AFFINE, a, Image.BILINEAR)
-        save_file(img, filename)
-        return "%s/i/%s" % (DOMAIN, filename)
-    return abort(400)
+    if len(a) != 6:
+        return abort(400)
+
+    oldPaste = PasteFile.get_by_filehash(img_hash)
+
+    if not oldPaste:
+        return abort(404)
+
+    newPaste = PasteFile.affine(oldPaste, w, h, a)
+
+    return newPaste.url_i
+
 
 @app.route('/', methods=['GET', 'POST'])
 def hello():
     if request.method == 'POST':
-        file = request.files['file']
+        uploadedFile = request.files['file']
         w = request.form.get('w')
         h = request.form.get('h')
-        if file and allowed_file(file.filename):
-            original_suffix = file.filename.rpartition('.')[-1]
-            filename = gen_filename(original_suffix)
-            if w and h:
-                img = cropresize.crop_resize(Image.open(file), (int(w), int(h)))
-                save_file(img, filename)
-            else:
-                save_file(file, filename)
-            if is_command_line_request(request):
-                return "%s/i/%s" % (DOMAIN, filename)
-            return "/p/%s" % filename
-        return abort(400)
+        
+        if not uploadedFile:
+            return abort(400)
+
+        if uploadedFile.mimetype.startswith("text"):
+            # TODO: post to gist
+            return ".."
+        
+        if w and h:
+            pasteFile = PasteFile.create_file_after_crop(uploadedFile, w, h)
+        else:
+            pasteFile = PasteFile.create_by_uploadFile(uploadedFile)
+        db.session.add(pasteFile)
+        db.session.commit()
+
+        if is_command_line_request(request):
+            return pasteFile.url_i
+
+        return pasteFile.url_p
     return render_template('index.html', **locals())
 
 @app.after_request
@@ -128,37 +228,48 @@ def after_request(response):
     response.headers["Access-Control-Allow-Headers"] = "Content-Type"
     return response
 
-@app.route('/j', methods=['GET', 'POST'])
+@app.route('/j', methods=['POST'])
 def j():
-    file = request.files['file']
-    if file and allowed_file(file.filename):
-        original_suffix = file.filename.rpartition('.')[-1]
-        filename = gen_filename(original_suffix)
-        symlink = save_file(file, filename)
+    uploadedFile = request.files['file']
+
+    if uploadedFile:
+        pasteFile = PasteFile.create_by_uploadFile(uploadedFile)
+
         return jsonify({
-            'url':"%s/i/%s" % (DOMAIN, filename),
-            'short_url':"%s/s/%s" % (DOMAIN, symlink),
-            'origin_filename': file.filename,
-            })
+                "url"             : pasteFile.url_i, 
+                "short_url"       : pasteFile.url_s, 
+                "origin_filename" : pasteFile.filename, 
+                })
+
     return abort(400)
 
-@app.route('/p/<filename>')
-def p(filename):
-    if not os.path.exists(os.path.join(app.config['UPLOAD_FOLDER'], filename)):
-        return abort(404)
+@app.route('/p/<filehash>')
+def preview(filehash):
+    pasteFile = PasteFile.get_by_filehash(filehash)
+    
+    filepath = os.path.join(app.config['UPLOAD_FOLDER'], filehash)
+    if not pasteFile:
+        # check file exists
+        if not(os.path.exists(filepath) and (not os.path.islink(filepath))):
+            return abort(404)
 
-    domain = DOMAIN
-    linkfile = os.path.join(app.config['UPLOAD_FOLDER'], filename.replace('.', '_'))
-    if os.path.exists(linkfile):
-        with open(linkfile) as fp:
-            symlink = fp.read()
-    else:
-        symlink = gen_symlink(filename)
-    return render_template('success.html', **locals())
+        linkfile = os.path.join(app.config['UPLOAD_FOLDER'], filehash.replace('.', '_')) 
+        symlink  = None
+        if os.path.exists(linkfile):
+            with open(linkfile) as fp:
+                symlink = fp.read().strip()
+        
+        pasteFile = PasteFile.create_by_old_paste(filehash, symlink)
+        db.session.add(pasteFile)
+        db.session.commit()
+
+    return render_template('success.html', p = pasteFile, r = request)
 
 @app.route('/s/<symlink>')
 def s(symlink):
-    path = os.path.realpath(os.path.join(app.config['UPLOAD_FOLDER'], symlink))
-    if not os.path.exists(path):
+    pasteFile = PasteFile.get_by_symlink(symlink)
+
+    if not pasteFile:
         return abort(404)
-    return redirect("/p/%s" % path.split('/')[-1])
+
+    return redirect(pasteFile.url_p)

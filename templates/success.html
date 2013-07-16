@@ -1,25 +1,16 @@
 doctype html
 head
-  title P - ${filename}
+  title P - ${p.filehash}
   link rel="stylesheet" href="/static/css/custom.css"
 
 body
-  -python
-    from utils import is_image,is_pdf,is_psd
+  -namespace name="utils" file="utils.html" import="show_file"
   div class="hd"
     a href="/" title="p.dapps.douban.com" P
-    input value="${domain}/i/${filename}" onmouseover="this.focus()"
-  input class="surl" value="${domain}/s/${symlink}" onmouseover="this.focus()"
-  -if is_image(filename)
-    div class="bd"
-      img src="/i/${filename}" id="image" class="small"
-  -elif is_pdf(filename)
-    iframe src="/i/${filename}"
-  -elif is_psd(filename)
-    a href="/i/${filename}" class="fileicon psd" psd
-    a href="/i/${filename}" ${filename}
-  -else
-    a href="/i/${filename}" class="fileicon" file
-    a href="/i/${filename}" ${filename}
+    input value="http://${r.host}/i/${p.filehash}" onmouseover="this.focus()"
+  input class="surl" value="http://${r.host}/s/${p.symlink}" onmouseover="this.focus()"
+
+  ${show_file(p)}
+  
   script
     document.getElementById("image").onclick=function(){var a=""+image.className+"";~a.indexOf("auto")?this.className=a.replace("auto",""):this.className+="auto"};
