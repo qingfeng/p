@@ -20,6 +20,10 @@ from flask.ext.mako import MakoTemplates
 from flask.ext.mako import render_template
 from flask.ext.sqlalchemy import SQLAlchemy
 
+from mimes import IMAGE_MIMES
+from mimes import AUDIO_MIMES
+from mimes import VIDEO_MIMES
+
 DOMAIN = "http://p.dapps.douban.com"
 RANDOM_SEQ = ascii_uppercase + ascii_lowercase + digits
 
@@ -148,6 +152,22 @@ class PasteFile(db.Model):
         img = Image.open(oldPaste.path).transform(img_size, Image.AFFINE, a, Image.BILINEAR)
 
         return cls.create_by_img(img, oldPaste.filename, oldPaste.mimetype)
+
+    @property
+    def is_image(self):
+        return self.mimetype in IMAGE_MIMES
+
+    @property
+    def is_audio(self):
+        return self.mimetype in AUDIO_MIMES
+
+    @property
+    def is_video(self):
+        return self.mimetype in VIDEO_MIMES
+
+    @property
+    def is_pdf(self):
+        return self.mimetype == "application/pdf"
 
 
 def is_command_line_request(request):
