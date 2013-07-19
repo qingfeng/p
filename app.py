@@ -25,7 +25,6 @@ from mimes import IMAGE_MIMES
 from mimes import AUDIO_MIMES
 from mimes import VIDEO_MIMES
 
-DOMAIN = "http://p.dapps.douban.com"
 RANDOM_SEQ = ascii_uppercase + ascii_lowercase + digits
 
 app = Flask(__name__)
@@ -261,14 +260,13 @@ def hello():
         uploadedFile = request.files['file']
         w = request.form.get('w')
         h = request.form.get('h')
+
+        # text file treat as binary file.
+        # if user wanna post a text file, they would use pastebin / gist. 
         
         if not uploadedFile:
             return abort(400)
 
-        if uploadedFile.mimetype.startswith("text"):
-            # TODO: post to gist
-            return ".."
-        
         if w and h:
             pasteFile = PasteFile.create_file_after_crop(uploadedFile, w, h)
         else:
