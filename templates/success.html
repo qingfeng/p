@@ -3,6 +3,8 @@ head
   title P - ${p.filehash}
   link rel="stylesheet" href="/static/css/style.css"
 
+  script src="/static/js/jquery-2.0.3.min.js"
+
 body
   -if p.type != "image"
     div#card.visible
@@ -23,8 +25,10 @@ body
           -elif p.type != "binary"
             a#play-link href="${p.url_i}" play
   -else
-    div#image-card
+    div#image-card.visible
       div#image-preview
         img src="${p.url_i}"
         div#image-link
           input readonly="readonly" type="text" value="${p.url_s}" onmouseover="this.focus()"
+
+  script src="/static/js/upload.js"

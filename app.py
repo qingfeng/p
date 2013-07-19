@@ -177,7 +177,7 @@ class PasteFile(db.Model):
     def type(self):
         may_types = ["image", "pdf", "video", "audio"]
         for t in may_types:
-            if getattr(self, "is_" + t)():
+            if getattr(self, "is_" + t):
                 return t
         return "binary"
 

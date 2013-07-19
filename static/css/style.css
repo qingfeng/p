@@ -427,7 +427,7 @@ progress::-webkit-progress-value {
     display: none;
 }
 
-#card.visible {
+#card.visible, #image-card.visible {
     display: block;
     opacity: 1;
 }

@@ -113,8 +113,6 @@ function showCard(r) {
     }
     download_button.attr("href", r.url_d);
     
-    console.log(card.height(), card.width());
-
     holder.remove();
     progressLayout.removeClass("show");
     arrow.addClass("hide");
@@ -211,6 +209,8 @@ function zoom() {
         zoomed = false;
     }
 }
+
+$("#image-preview img").click(zoom);
 
 $window.resize(function() {
     var height = $window.height();
