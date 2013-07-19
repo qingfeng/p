@@ -12,6 +12,10 @@ body, input {
     -moz-font-smoothing: antialiased;
 }
 
+a {
+    text-decoration: none;
+}
+
 #holder { 
     display: block;
     position: absolute;
@@ -288,6 +292,7 @@ progress::-webkit-progress-value {
 #card {
     opacity: 0;
     min-width: 290px;
+    max-width: 290px;
     position: fixed;
     left: 50%;
     top: 40%;
