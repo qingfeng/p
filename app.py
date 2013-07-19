@@ -48,21 +48,9 @@ class PasteFile(db.Model):
         self.uploadTime = datetime.now()
         self.mimetype   = mimetype
         self.size       = int(size)
-
-        if filehash:
-            self.filehash = filehash
-        else:
-            self.filehash = self._hash_filename(filename)
-
-        if filename:
-            self.filename = filename
-        else:
-            self.filename = self.filehash
-
-        if symlink:
-            self.symlink  = symlink
-        else:
-            self.symlink  = self._gen_symlink()
+        self.filehash   = filehash if filehash else self._hash_filename(filename)
+        self.filename   = filename if filename else self.filehash
+        self.symlink    = symlink  if symlink  else self._gen_symlink()
 
     @staticmethod
     def _hash_filename(filename):
@@ -187,14 +175,10 @@ class PasteFile(db.Model):
 
     @property
     def type(self):
-        if self.is_image:
-            return "image"
-        elif self.is_pdf:
-            return "pdf"
-        elif self.is_video:
-            return "video"
-        elif self.is_audio:
-            return "audio"
+        may_types = ["image", "pdf", "video", "audio"]
+        for t in may_types:
+            if getattr(self, "is_" + t)():
+                return t
         return "binary"
 
 def is_command_line_request(request):
