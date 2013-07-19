@@ -3,19 +3,46 @@ head
   title P - 内网文件分享工具
 
   script src="/static/js/h5utils.js"
-  link rel="stylesheet" href="/static/css/custom.css"
+  script src="/static/js/jquery-2.0.3.min.js"
+  link rel="stylesheet" href="/static/css/style.css"
 
 body
-  div class="hd"
-    a href="/" title="p.dapps.douban.com" P
-  div id="holder"
-  h1 拖拽文件到页面开始上传
-  p
-    progress id="uploadprogress" min="0" max="100" value="0" 0
-  p id="upload" class="hidden"
-  p id="filereader"
-  p id="formdata"
-  p id="progress"
+  div#holder
+  div#arrow.arrow
+    div.alpha-bg
+      span#drag-notice.notice.show drag files here
+      span#drop-notice.notice now drop!
+      span#multi-notice.notice one file only
+  div#progress
+    progress id="uploadprogress" min="0" max="100" value="0"
+  div#card
+    div#card-info
+      div.file-icon
+        img src=""
+      div.file-meta
+        h2#filename.filename 
+        span#filesize 
+        span.sep •
+        span#uploadtime
+      div.p-link
+        input#link_s type="text" readonly="readonly" value="" onmouseover="this.focus()"
+      div#action-area
+        a#download-link href="/download" download
+        a#play-link href="/play" play
+  div#image-card
+    div#image-preview
+      div#image-link
+        input readonly="readonly" type="text" value="" onmouseover="this.focus()"
 
   script src="/static/js/upload.js"
-
+/  div class="hd"
+/    a href="/" title="p.dapps.douban.com" P
+/  div id="holder"
+/  h1 拖拽文件到页面开始上传
+/  p
+/    progress id="uploadprogress" min="0" max="100" value="0" 0
+/  p id="upload" class="hidden"
+/  p id="filereader"
+/  p id="formdata"
+/  p id="progress"
+/

@@ -12,7 +12,7 @@ _SQL_PARAMS = get_mysql_conn_params()
 
 DEBUG = False
 UPLOAD_FOLDER = permdir.get_permdir()
-MAX_CONTENT_LENGTH = 16 * 1024 * 1024
+MAX_CONTENT_LENGTH = 1024 * 1024 * 1024
 MAKO_PREPROCESSOR = preprocessor
 MAKO_TRANSLATE_EXCEPTIONS = False
 SQLALCHEMY_DATABASE_URI = "mysql://%s:%s@%s:%s/%s" % (_SQL_PARAMS['user'], \

@@ -16,6 +16,7 @@ from flask import Flask
 from flask import request
 from flask import jsonify
 from flask import redirect
+from flask import send_file
 from flask.ext.mako import MakoTemplates
 from flask.ext.mako import render_template
 from flask.ext.sqlalchemy import SQLAlchemy
@@ -67,7 +68,7 @@ class PasteFile(db.Model):
     @staticmethod
     def _hash_filename(filename):
         _, _, suffix = filename.rpartition('.')
-        return "%s.%s" % (uuid.uuid1().hex, suffix)
+        return "%s.%s" % (uuid.uuid4().hex, suffix)
 
     @staticmethod
     def _gen_symlink():
@@ -91,7 +92,7 @@ class PasteFile(db.Model):
 
     @classmethod
     def create_file_after_crop(cls, uploadedFile, width, height):
-        assert uploadedFile.mimetype in SUPPORT_IMAGE_MIME, TypeError("Unsupported Image Type.")
+        assert uploadedFile.is_image, TypeError("Unsupported Image Type.")
 
         img      = cropresize.crop_resize(Image.open(uploadedFile), (int(width), int(height)))
         rst      = cls(uploadedFile.filename, uploadedFile.mimetype, 0)
@@ -127,6 +128,10 @@ class PasteFile(db.Model):
     @property
     def url_s(self):
         return "http://{host}/s/{symlink}".format(host = request.host, symlink = self.symlink)
+
+    @property
+    def url_d(self):
+        return "http://{host}/d/{filehash}".format(host = request.host, filehash = self.filehash)
 
     @classmethod
     def create_by_img(cls, img, filename, mimetype):
@@ -169,6 +174,29 @@ class PasteFile(db.Model):
     def is_pdf(self):
         return self.mimetype == "application/pdf"
 
+    @property
+    def size_humanize(self):
+        if self.size < 1024:
+            return "{0} bytes".format(self.size)
+        size = self.size / 1024.0
+        if size < 1024:
+            size = "%.2f" % size
+            return size.rstrip("0").rstrip(".") + " KB"
+        size = size / 1024.0
+        size = "%.2f" % size
+        return size.rstrip("0").rstrip(".") + " MB"
+
+    @property
+    def type(self):
+        if self.is_image:
+            return "image"
+        elif self.is_pdf:
+            return "pdf"
+        elif self.is_video:
+            return "video"
+        elif self.is_audio:
+            return "audio"
+        return "binary"
 
 def is_command_line_request(request):
     agent = str(request.user_agent).lower()
@@ -214,6 +242,18 @@ def affine(img_hash):
 
     return newPaste.url_i
 
+@app.route('/d/<filehash>', methods = ["GET"])
+def download(filehash):
+    pasteFile = PasteFile.get_by_filehash(filehash)
+    
+    if not pasteFile:
+        return abort(404)
+
+    return send_file(open(pasteFile.path, "rb"), \
+            mimetype = "application/octet-stream", \
+            cache_timeout = 2592000, \
+            as_attachment = True, \
+            attachment_filename = pasteFile.filename.encode("UTF-8"))
 
 @app.route('/', methods=['GET', 'POST'])
 def hello():
@@ -239,7 +279,16 @@ def hello():
         if is_command_line_request(request):
             return pasteFile.url_i
 
-        return pasteFile.url_p
+        return jsonify({
+            "url_d"    : pasteFile.url_d,  
+            "url_i"    : pasteFile.url_i, 
+            "url_s"    : pasteFile.url_s, 
+            "url_p"    : pasteFile.url_p, 
+            "filename" : pasteFile.filename, 
+            "size"     : pasteFile.size_humanize, 
+            "time"     : str(pasteFile.uploadTime), 
+            "type"     : pasteFile.type, 
+        })
     return render_template('index.html', **locals())
 
 @app.after_request
