@@ -1,0 +1,16 @@
+-def show_file(p)
+  -if p.is_image
+    div.bd
+      img.small src="${p.url_i}"
+  -elif p.is_audio
+    div.bd
+      audio src="${p.url_i}" controls="controls"
+  -elif p.is_video
+    div.bd
+      video src="${p.url_i}" controls="controls"
+  -elif p.is_pdf
+    iframe src="${p.url_i}"
+  -else
+    div.bd  
+      a href="${p.url_i}" ${p.url_i}
+      ${p.mimetype}

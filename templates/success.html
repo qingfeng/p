@@ -1,25 +1,34 @@
 doctype html
 head
-  title P - ${filename}
-  link rel="stylesheet" href="/static/css/custom.css"
+  title P - ${p.filehash}
+  link rel="stylesheet" href="/static/css/style.css"
+
+  script src="/static/js/jquery-2.0.3.min.js"
 
 body
-  -python
-    from utils import is_image,is_pdf,is_psd
-  div class="hd"
-    a href="/" title="p.dapps.douban.com" P
-    input value="${domain}/i/${filename}" onmouseover="this.focus()"
-  input class="surl" value="${domain}/s/${symlink}" onmouseover="this.focus()"
-  -if is_image(filename)
-    div class="bd"
-      img src="/i/${filename}" id="image" class="small"
-  -elif is_pdf(filename)
-    iframe src="/i/${filename}"
-  -elif is_psd(filename)
-    a href="/i/${filename}" class="fileicon psd" psd
-    a href="/i/${filename}" ${filename}
+  -if p.type != "image"
+    div#card.visible
+      div#card-info
+        div.file-icon
+          img src="/static/img/${p.type}.png"
+        div.file-meta
+          h2#filename.filename ${p.filename}
+          span#filesize ${p.size_humanize}
+          span.sep •
+          span#uploadtime ${p.uploadTime}
+        div.p-link
+          input#link_s type="text" readonly="readonly" value="${p.url_s}" onmouseover="this.focus()"
+        div#action-area
+          a#download-link href="${p.url_d}" download
+          -if p.type == "pdf"
+            a#play-link href="${p.url_i}" preview
+          -elif p.type != "binary"
+            a#play-link href="${p.url_i}" play
   -else
-    a href="/i/${filename}" class="fileicon" file
-    a href="/i/${filename}" ${filename}
-  script
-    document.getElementById("image").onclick=function(){var a=""+image.className+"";~a.indexOf("auto")?this.className=a.replace("auto",""):this.className+="auto"};
+    div#image-card.visible
+      div#image-preview
+        img src="${p.url_i}"
+        div#image-link
+          input readonly="readonly" type="text" value="${p.url_s}" onmouseover="this.focus()"
+
+  script src="/static/js/upload.js"
