@@ -297,19 +297,19 @@ def j():
 @app.route('/p/<filehash>')
 def preview(filehash):
     pasteFile = PasteFile.get_by_filehash(filehash)
-    
+
     filepath = os.path.join(app.config['UPLOAD_FOLDER'], filehash)
     if not pasteFile:
         # check file exists
         if not(os.path.exists(filepath) and (not os.path.islink(filepath))):
             return abort(404)
 
-        linkfile = os.path.join(app.config['UPLOAD_FOLDER'], filehash.replace('.', '_')) 
+        linkfile = os.path.join(app.config['UPLOAD_FOLDER'], filehash.replace('.', '_'))
         symlink  = None
         if os.path.exists(linkfile):
             with open(linkfile) as fp:
                 symlink = fp.read().strip()
-        
+
         pasteFile = PasteFile.create_by_old_paste(filehash, symlink)
         db.session.add(pasteFile)
         db.session.commit()
