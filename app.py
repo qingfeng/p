@@ -4,6 +4,7 @@ import os
 import uuid
 import magic
 import Image
+import urllib
 import cropresize
 from random import choice
 from string import digits
@@ -119,6 +120,10 @@ class PasteFile(db.Model):
     @property
     def url_d(self):
         return "http://{host}/d/{filehash}".format(host = request.host, filehash = self.filehash)
+
+    @property
+    def quoteurl(self):
+        return urllib.quote(self.url_p)
 
     @classmethod
     def create_by_img(cls, img, filename, mimetype):
