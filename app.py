@@ -123,7 +123,7 @@ class PasteFile(db.Model):
 
     @property
     def quoteurl(self):
-        return urllib.quote(self.url_p)
+        return urllib.quote(self.url_i)
 
     @classmethod
     def create_by_img(cls, img, filename, mimetype):
