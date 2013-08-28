@@ -42,7 +42,8 @@ var holder = $("#holder"),
     image_card = $("#image-card"), 
     image_preview = $("#image-preview"), 
     $window = $(window)
-    zoomed = false;
+    zoomed = false,
+    qr_code = $("#js-qrcode");
 
 "filereader formdata progress".split(' ').forEach(function (api) {
   if (tests[api] === false) {
@@ -201,11 +202,15 @@ function zoom() {
     if(!zoomed) {
         var height = $window.height();
         image_preview.addClass("zoomed");
-        image_preview.css("max-height", height * 0.7);
+        image_card.addClass("zoomed");
+        qr_code.css("display", "none");
+        //image_preview.css("max-height", height * 0.7);
         zoomed = true;
     }else{
         image_preview.removeClass("zoomed");
+        image_card.removeClass("zoomed");
         image_preview.css("max-height", "");
+        qr_code.css("display", "");
         zoomed = false;
     }
 }
@@ -215,7 +220,7 @@ $("#image-preview img").click(zoom);
 $window.resize(function() {
     var height = $window.height();
     if(zoomed) {
-        image_preview.css("max-height", height * 0.7);
+        //image_preview.css("max-height", height * 0.7);
     }
 });
 

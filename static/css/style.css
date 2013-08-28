@@ -5,6 +5,8 @@ body {
     -moz-user-select: none;
     user-select: none;
     text-align: center;
+    margin: 0;
+    padding: 0;
 }
 
 body, input {
@@ -435,6 +437,9 @@ progress::-webkit-progress-value {
 #image-card {
     margin-top: 100px;
     display: none;
+    -webkit-box-sizing: border-box; 
+    -moz-box-sizing: border-box;    
+    box-sizing: border-box; 
 }
 
 #image-preview {
@@ -442,7 +447,6 @@ progress::-webkit-progress-value {
     max-height: 70%;
     max-width: 70%;
     padding: 4px;
-    padding-bottom: 0;
     background-color: #F6F6F6;
     border: 1px solid #DCDCDC;
     -webkit-border-radius: 3px;
@@ -461,16 +465,19 @@ progress::-webkit-progress-value {
 #image-preview img {
     max-height: 70%;
     max-width: 100%;
+    display: block;
 }
 
 #image-preview.zoomed {
-    display: inline-block;
-    max-width: 95%;
-    max-height: 50%;
-    overflow: scroll;
+    display: block;
+    max-width: none;
+    max-height: none;
     cursor: zoom-out;
     cursor: -moz-zoom-out;
     cursor: -webkit-zoom-out;
+    position: static;
+    overflow: auto;
+    padding: 4px 0;
 }
 
 #image-preview.zoomed img {
@@ -480,6 +487,10 @@ progress::-webkit-progress-value {
 
 #image-preview.zoomed #image-link {
     display: none;
+}
+
+#image-card.zoomed {
+    margin: 0;
 }
 
 #image-link input {
