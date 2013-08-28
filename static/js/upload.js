@@ -204,7 +204,6 @@ function zoom() {
         image_preview.addClass("zoomed");
         image_card.addClass("zoomed");
         qr_code.css("display", "none");
-        //image_preview.css("max-height", height * 0.7);
         zoomed = true;
     }else{
         image_preview.removeClass("zoomed");
@@ -216,13 +215,6 @@ function zoom() {
 }
 
 $("#image-preview img").click(zoom);
-
-$window.resize(function() {
-    var height = $window.height();
-    if(zoomed) {
-        //image_preview.css("max-height", height * 0.7);
-    }
-});
 
 holder.change(function() {
     readfiles(this.files);
