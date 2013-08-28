@@ -26,6 +26,7 @@ a {
     right: 0;
     bottom: 0;
     z-index: 999;
+    opacity: 0;
 }
 
 .arrow {
@@ -469,7 +470,7 @@ progress::-webkit-progress-value {
 }
 
 #image-preview.zoomed {
-    display: block;
+    display: inline-block;
     max-width: none;
     max-height: none;
     cursor: zoom-out;

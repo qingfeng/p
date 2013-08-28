@@ -224,3 +224,6 @@ $window.resize(function() {
     }
 });
 
+holder.change(function() {
+    readfiles(this.files);
+});
