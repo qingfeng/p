@@ -27,6 +27,8 @@ a {
     bottom: 0;
     z-index: 999;
     opacity: 0;
+    width: 100%;
+    height: 100%;
 }
 
 .arrow {
