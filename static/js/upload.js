@@ -219,3 +219,16 @@ $("#image-preview img").click(zoom);
 holder.change(function() {
     readfiles(this.files);
 });
+
+// support html5 pasting image data in chrome
+$(document).on('paste', function(event){
+    var items = event.originalEvent.clipboardData.items
+    readfiles(
+        $.map(items, function(item){
+            if(acceptedTypes[item.type]){
+                return item.getAsFile();
+            }
+        })
+    );
+});
+
