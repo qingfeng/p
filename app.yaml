@@ -2,6 +2,7 @@ application: p
 version: 1
 runtime: python
 api_version: 1
+release_managers: qingfeng
 
 handlers:
 - url: /i/(.*)
