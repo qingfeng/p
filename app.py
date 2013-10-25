@@ -297,6 +297,7 @@ def j():
                 "url"             : pasteFile.url_i,
                 "short_url"       : pasteFile.url_s,
                 "origin_filename" : pasteFile.filename,
+                "hash"            : pasteFile.filehash,
                 })
 
     return abort(400)
