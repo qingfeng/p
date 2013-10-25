@@ -86,7 +86,7 @@ class PasteFile(db.Model):
         rst      = cls(uploadedFile.filename, uploadedFile.mimetype, 0)
         img.save(rst.path)
 
-        filestat = os.stat(rst.path) 
+        filestat = os.stat(rst.path)
         rst.size = filestat.st_size
 
         return rst
@@ -233,7 +233,7 @@ def affine(img_hash):
 @app.route('/d/<filehash>', methods = ["GET"])
 def download(filehash):
     pasteFile = PasteFile.get_by_filehash(filehash)
-    
+
     if not pasteFile:
         return abort(404)
 
@@ -251,8 +251,8 @@ def hello():
         h = request.form.get('h')
 
         # text file treat as binary file.
-        # if user wanna post a text file, they would use pastebin / gist. 
-        
+        # if user wanna post a text file, they would use pastebin / gist.
+
         if not uploadedFile:
             return abort(400)
 
@@ -267,14 +267,14 @@ def hello():
             return pasteFile.url_i
 
         return jsonify({
-            "url_d"    : pasteFile.url_d,  
-            "url_i"    : pasteFile.url_i, 
-            "url_s"    : pasteFile.url_s, 
-            "url_p"    : pasteFile.url_p, 
-            "filename" : pasteFile.filename, 
-            "size"     : pasteFile.size_humanize, 
-            "time"     : str(pasteFile.uploadTime), 
-            "type"     : pasteFile.type, 
+            "url_d"    : pasteFile.url_d,
+            "url_i"    : pasteFile.url_i,
+            "url_s"    : pasteFile.url_s,
+            "url_p"    : pasteFile.url_p,
+            "filename" : pasteFile.filename,
+            "size"     : pasteFile.size_humanize,
+            "time"     : str(pasteFile.uploadTime),
+            "type"     : pasteFile.type,
         })
     return render_template('index.html', **locals())
 
@@ -290,11 +290,14 @@ def j():
 
     if uploadedFile:
         pasteFile = PasteFile.create_by_uploadFile(uploadedFile)
+        db.session.add(pasteFile)
+        db.session.commit()
 
         return jsonify({
-                "url"             : pasteFile.url_i, 
-                "short_url"       : pasteFile.url_s, 
-                "origin_filename" : pasteFile.filename, 
+                "url"             : pasteFile.url_i,
+                "short_url"       : pasteFile.url_s,
+                "origin_filename" : pasteFile.filename,
+                "hash"            : pasteFile.filehash,
                 })
 
     return abort(400)
