@@ -1,8 +1,23 @@
 P
 ====
 
-[http://p.dapps.douban.com/](http://p.dapps.douban.com/)
+Douban Intra Service [http://p.dapps.douban.com/](http://p.dapps.douban.com/)
 
+Dev
+====
+```
+git clone PROJECT.git
+cd PROJECT
+virtualenv venv
+source venv/bin/activate
+pip install -r requirement.txt
+mkdir permdir
+python app.py
+open http://localhost:5000
+```
+
+Command Line
+====
 Example:
 
  * Command line: ``curl -F file=@"/tmp/1.png" http://p.dapps.douban.com/``

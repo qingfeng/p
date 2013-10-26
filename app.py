@@ -30,6 +30,12 @@ RANDOM_SEQ = ascii_uppercase + ascii_lowercase + digits
 
 app = Flask(__name__)
 app.config.from_object("config")
+if app.config["DEBUG"]:
+    from werkzeug import SharedDataMiddleware
+    import os
+    app.wsgi_app = SharedDataMiddleware(app.wsgi_app, {
+      '/i/': os.path.join(os.path.dirname(__file__), app.config["UPLOAD_FOLDER"])
+    })
 mako = MakoTemplates(app)
 db = SQLAlchemy(app)
 
@@ -332,3 +338,7 @@ def s(symlink):
         return abort(404)
 
     return redirect(pasteFile.url_p)
+
+
+if __name__ == "__main__":
+    app.run(host='0.0.0.0')
