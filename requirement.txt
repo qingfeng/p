@@ -1,6 +1,6 @@
 CoffeeScript==1.0.5
 Flask==0.9
--e git+http://code.dapps.douban.com/flask-mako.git@db54dd5cc487ad057a42d15b7d641b2493fb329f#egg=Flask_Mako
+-e git+https://github.com/benselme/flask-mako.git#egg=Flask_Mako
 Flask-SQLAlchemy==0.16
 Jinja2==2.6
 Mako==0.8.0
