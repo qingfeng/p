@@ -1,6 +1,7 @@
+[![Code Quality](https://landscape.io/github/qingfeng/p/master/landscape.png)](https://landscape.io/github/qingfeng/p/master)
+
 P
 ====
-
 Douban Intra Service [http://p.dapps.douban.com/](http://p.dapps.douban.com/)
 
 Dev
