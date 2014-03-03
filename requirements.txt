@@ -1,0 +1,15 @@
+Flask==0.9
+Flask-Mako==0.3
+Flask-SQLAlchemy==0.16
+Mako==0.8.0
+MarkupSafe==0.15
+Pillow==2.3.0
+SQLAlchemy==0.8.2
+Werkzeug==0.8.3
+python-magic==0.4.3
+gunicorn==0.17.2
+MySQL-python==1.2.5
+-e git+https://github.com/sika-others/cropresize.git#egg=cropresize
+-e git+https://github.com/qingfeng/Plim.git@36f6c78f83e778e1c03c72192e7705a3ea5f7bff#egg=Plim
+requests==2.0.1
+upyun==2.1.1

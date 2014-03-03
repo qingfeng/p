@@ -3,7 +3,6 @@
 import os
 import uuid
 import magic
-import Image
 import urllib
 import cropresize
 from random import choice
@@ -25,6 +24,7 @@ from flask.ext.sqlalchemy import SQLAlchemy
 from mimes import IMAGE_MIMES
 from mimes import AUDIO_MIMES
 from mimes import VIDEO_MIMES
+from PIL import Image
 
 RANDOM_SEQ = ascii_uppercase + ascii_lowercase + digits
 
@@ -79,9 +79,16 @@ class PasteFile(db.Model):
     @classmethod
     def create_by_uploadFile(cls, uploadedFile):
         rst      = cls(uploadedFile.filename, uploadedFile.mimetype, 0) # emmm. I'll fill this value later.
-        uploadedFile.save(rst.path)
-        filestat = os.stat(rst.path)
-        rst.size = filestat.st_size
+
+        upyun = app.config["YUN_CDN"]
+        if upyun:
+            upyun_path = "/%s/%s" % (app.config["UPLOAD_FOLDER"], rst.filehash)
+            res = upyun.put(upyun_path, uploadedFile.stream.read())
+            rst.size = uploadedFile.content_length
+        else:
+            uploadedFile.save(rst.path)
+            filestat = os.stat(rst.path)
+            rst.size = filestat.st_size
         return rst
 
     @classmethod
@@ -113,6 +120,8 @@ class PasteFile(db.Model):
 
     @property
     def url_i(self):
+        if app.config["HEROKU_ENV"]:
+            return app.config["YUN_CDN_URL"] % self.filehash
         return "http://{host}/i/{filehash}".format(host = request.host, filehash = self.filehash)
 
     @property
@@ -253,6 +262,7 @@ def download(filehash):
 def hello():
     if request.method == 'POST':
         uploadedFile = request.files['file']
+
         w = request.form.get('w')
         h = request.form.get('h')
 
@@ -262,7 +272,7 @@ def hello():
         if not uploadedFile:
             return abort(400)
 
-        if w and h:
+        if w and h and not app.config['HEROKU_ENV']:
             pasteFile = PasteFile.create_file_after_crop(uploadedFile, w, h)
         else:
             pasteFile = PasteFile.create_by_uploadFile(uploadedFile)
@@ -341,4 +351,4 @@ def s(symlink):
 
 
 if __name__ == "__main__":
-    app.run(host='0.0.0.0')
+    app.run(host='0.0.0.0', debug=True)
