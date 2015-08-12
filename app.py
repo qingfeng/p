@@ -128,6 +128,13 @@ class PasteFile(db.Model):
         return "http://{host}/d/{filehash}".format(host = request.host, filehash = self.filehash)
 
     @property
+    def image_size(self):
+        if self.is_image:
+            im = Image.open(self.path)
+            return im.size
+        return (0, 0)
+
+    @property
     def quoteurl(self):
         return urllib.quote(self.url_i)
 
@@ -298,12 +305,15 @@ def j():
         pasteFile = PasteFile.create_by_uploadFile(uploadedFile)
         db.session.add(pasteFile)
         db.session.commit()
+        width, height = pasteFile.image_size
 
         return jsonify({
                 "url"             : pasteFile.url_i,
                 "short_url"       : pasteFile.url_s,
                 "origin_filename" : pasteFile.filename,
                 "hash"            : pasteFile.filehash,
+                "width"           : width,
+                "height"          : height
                 })
 
     return abort(400)
